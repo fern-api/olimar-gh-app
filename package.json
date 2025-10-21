@@ -1,0 +1,33 @@
+{
+  "name": "github-app-webhook-server",
+  "version": "1.0.0",
+  "description": "GitHub App webhook server that triggers dispatch workflows on merge events",
+  "type": "module",
+  "main": "dist/index.js",
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "watch": "tsc --watch"
+  },
+  "keywords": [
+    "github",
+    "webhook",
+    "octokit"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@octokit/webhooks": "^13.3.0",
+    "octokit": "^4.0.2",
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.5.2"
+  }
+}
