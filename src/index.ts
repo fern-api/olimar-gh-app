@@ -4,6 +4,7 @@ import { createNodeMiddleware } from "@octokit/webhooks";
 import fs from "fs";
 import http from "http";
 import { registerWebhookHandlers } from "./webhooks.js";
+import logger from "./logger.js";
 
 // This reads your `.env` file and adds the variables from that file to the `process.env` object in Node.js.
 dotenv.config();
@@ -49,9 +50,9 @@ registerWebhookHandlers(app);
 // This logs any errors that occur.
 app.webhooks.onError((error) => {
   if (error.name === "AggregateError") {
-    console.error(`Error processing request: ${error.event}`);
+    logger.error(`Error processing request: ${error.event}`);
   } else {
-    console.error(error);
+    logger.error(error);
   }
 });
 
@@ -72,6 +73,6 @@ const middleware = createNodeMiddleware(app.webhooks, { path });
 
 // This creates a Node.js server that listens for incoming HTTP requests (including webhook payloads from GitHub) on the specified port. When the server receives a request, it executes the `middleware` function that you defined earlier. Once the server is running, it logs messages to the console to indicate that it is listening.
 http.createServer(middleware).listen(port, () => {
-  console.log(`Server is listening for events at: ${localWebhookUrl}`);
-  console.log('Press Ctrl + C to quit.');
+  logger.info(`Server is listening for events at: ${localWebhookUrl}`);
+  logger.info('Press Ctrl + C to quit.');
 });

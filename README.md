@@ -9,6 +9,7 @@ A minimal Node.js server written in TypeScript that uses Octokit.js to create a 
 - Triggers different GitHub Actions workflows based on target branch
 - Built with Express.js and TypeScript
 - Uses Octokit.js for GitHub API interactions
+- Structured logging with winston (configurable log levels with timestamps)
 
 ## Prerequisites
 
@@ -38,8 +39,10 @@ cp .env.example .env
 3. Configure your `.env` file with your GitHub App credentials:
    - `APP_ID`: Your GitHub App ID
    - `WEBHOOK_SECRET`: The webhook secret you set in your GitHub App settings
-   - `PRIVATE_KEY_PATH`: Path to your GitHub App's private key file (e.g., `./private-key.pem`)
+   - `PRIVATE_KEY` (recommended): Your GitHub App's private key directly as a string (PEM format)
+   - `PRIVATE_KEY_PATH` (fallback): Path to your GitHub App's private key file (e.g., `./private-key.pem`)
    - `PORT`: Server port (default: 3000)
+   - `LOG_LEVEL`: Logging level (default: info). Options: error, warn, info, debug
 
 4. Download your GitHub App's private key from GitHub and save it as `private-key.pem` in the project root
 
@@ -92,4 +95,11 @@ const workflowMap: Record<string, string> = {
 2. The server verifies the webhook signature
 3. Based on the event type (PR merge or push), it determines the target branch
 4. It looks up the corresponding workflow file for that branch
-5. It triggers a workflow dispatch with relevant context (PR number, commit SHA, etc.)
+5. It triggers a workflow dispatch with relevant context (PR number, commit SHA, etc.)\
+
+
+## Testing with the [Development] Fern Bot Github App
+To set up the app I:
+1. created a new webhook secret (should be rotated and saved in 1Pass before production use)
+2. Disabled SSL for now (so I can use my local server without need to setup encryption)
+3. Created a new private key (will delete before production use and create a real one to be stored in a more secure location)

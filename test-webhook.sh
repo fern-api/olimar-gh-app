@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Test script for sending a GitHub push webhook to the local server
-# Usage: ./test-webhook.sh
+# Usage: ./test-webhook.sh [hostname]
+# If hostname is not provided, defaults to localhost
 
 # Read webhook secret from .env file
 WEBHOOK_SECRET=$(grep WEBHOOK_SECRET .env | cut -d '=' -f2 | tr -d '"' | tr -d "'")
@@ -35,15 +36,23 @@ PAYLOAD='{
 # Calculate signature
 SIGNATURE="sha256=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "$WEBHOOK_SECRET" | awk '{print $2}')"
 
-# Get port from .env or use default
-PORT=$(grep PORT .env | cut -d '=' -f2 | tr -d '"' | tr -d "'" || echo "3000")
-PORT=${PORT:-3000}
+# Get hostname from first argument or default to localhost
+HOSTNAME=${1:-localhost}
 
-echo "Sending test webhook to http://localhost:$PORT/api/webhook"
+# Get port from .env or use default (only for localhost)
+if [ "$HOSTNAME" = "localhost" ]; then
+  PORT=$(grep PORT .env | cut -d '=' -f2 | tr -d '"' | tr -d "'" || echo "3000")
+  PORT=${PORT:-3000}
+  URL="http://$HOSTNAME:$PORT/api/webhook"
+else
+  URL="http://$HOSTNAME/api/webhook"
+fi
+
+echo "Sending test webhook to $URL"
 echo ""
 
 # Send the webhook
-curl -X POST http://localhost:$PORT/api/webhook \
+curl -X POST $URL \
   -H "Content-Type: application/json" \
   -H "X-GitHub-Event: push" \
   -H "X-GitHub-Delivery: $(uuidgen)" \
