@@ -11,6 +11,7 @@ dotenv.config();
 // This assigns the values of your environment variables to local variables.
 const appId = process.env.APP_ID;
 const webhookSecret = process.env.WEBHOOK_SECRET;
+const privateKeyEnv = process.env.PRIVATE_KEY;
 const privateKeyPath = process.env.PRIVATE_KEY_PATH;
 
 // Validate required environment variables
@@ -20,12 +21,18 @@ if (!appId) {
 if (!webhookSecret) {
   throw new Error('WEBHOOK_SECRET is required in environment variables');
 }
-if (!privateKeyPath) {
-  throw new Error('PRIVATE_KEY_PATH is required in environment variables');
-}
 
-// This reads the contents of your private key file.
-const privateKey = fs.readFileSync(privateKeyPath, "utf8");
+// Get private key from PRIVATE_KEY env var, or fallback to reading from PRIVATE_KEY_PATH
+let privateKey: string;
+if (privateKeyEnv) {
+  // Use PRIVATE_KEY environment variable directly
+  privateKey = privateKeyEnv;
+} else if (privateKeyPath) {
+  // Fallback to reading from file
+  privateKey = fs.readFileSync(privateKeyPath, "utf8");
+} else {
+  throw new Error('Either PRIVATE_KEY or PRIVATE_KEY_PATH must be set in environment variables');
+}
 
 // This creates a new instance of the Octokit App class.
 const app = new App({
