@@ -1,6 +1,6 @@
 import { App } from 'octokit';
 import logger from '../logger.js';
-import { dispatchAndMonitorWorkflow, recordWorkflowRun } from '../actions/index.js';
+import { dispatchAndMonitorWorkflow } from '../actions/index.js';
 
 // This function registers all webhook event handlers on the app instance
 export function registerWebhookHandlers(app: App) {
@@ -101,7 +101,7 @@ export function registerWebhookHandlers(app: App) {
   });
 
   // This adds an event handler for workflow_run events.
-  // Records SDK workflow runs in the database when they complete, are requested, or are in progress.
+  // Logs SDK workflow run completion status.
   app.webhooks.on('workflow_run', async ({ octokit, payload }) => {
     const repo = payload.repository.name;
     const owner = payload.repository.owner?.login;
@@ -134,25 +134,6 @@ export function registerWebhookHandlers(app: App) {
       }
 
       logger.info(`Processing workflow_run event for SDK workflow: ${workflowRun.name} (${action})`);
-
-      // Record the workflow run in the database
-      await recordWorkflowRun({
-        octokit,
-        owner,
-        repo,
-        workflowRun: {
-          id: workflowRun.id,
-          name: workflowRun.name,
-          workflow_id: workflowRun.workflow_id,
-          status: workflowRun.status,
-          conclusion: workflowRun.conclusion,
-          head_sha: workflowRun.head_sha,
-          head_branch: workflowRun.head_branch,
-          run_started_at: workflowRun.run_started_at,
-          created_at: workflowRun.created_at,
-          updated_at: workflowRun.updated_at,
-        },
-      });
 
       // Log completion status
       if (action === 'completed') {

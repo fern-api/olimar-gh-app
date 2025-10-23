@@ -19,8 +19,6 @@ export interface WorkflowInfo {
 }
 
 /**
- * Result type for actions that may have database tracking
+ * Result type for actions
  */
-export interface ActionResult {
-  dbRecordId?: number | null;
-}
+export interface ActionResult {}

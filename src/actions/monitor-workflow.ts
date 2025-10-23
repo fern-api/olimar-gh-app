@@ -1,5 +1,4 @@
 import logger from '../logger.js';
-import db, { isDatabaseAvailable } from '../db/index.js';
 import { BaseActionParams } from './types.js';
 
 /**
@@ -8,14 +7,13 @@ import { BaseActionParams } from './types.js';
 export interface MonitorWorkflowParams extends BaseActionParams {
   workflowName: string;
   workflowId: number;
-  dbRecordId?: number | null;
 }
 
 /**
  * Monitor a workflow run until it completes
  */
 export async function monitorWorkflow(params: MonitorWorkflowParams): Promise<void> {
-  const { octokit, owner, repo, workflowName, workflowId, dbRecordId = null } = params;
+  const { octokit, owner, repo, workflowName, workflowId } = params;
 
   const maxAttempts = 60; // Monitor for up to 10 minutes (60 * 10 seconds)
   const pollInterval = 10000; // Poll every 10 seconds
@@ -48,44 +46,11 @@ export async function monitorWorkflow(params: MonitorWorkflowParams): Promise<vo
       const latestRun = runs.workflow_runs[0];
       const status = latestRun.status;
       const conclusion = latestRun.conclusion;
-      const runId = latestRun.id;
 
       logger.debug(`Workflow ${workflowName} - Status: ${status}, Conclusion: ${conclusion || 'N/A'}`);
 
-      // Update database with run_id if we have a DB record and haven't set it yet
-      if (isDatabaseAvailable() && dbRecordId !== null) {
-        try {
-          const dbRun = await db.getWorkflowRunByRunId(runId);
-          // Only update if this run_id isn't already tracked
-          if (!dbRun) {
-            await db.updateWorkflowRunById(dbRecordId, {
-              run_id: runId,
-              status: status as 'queued' | 'in_progress' | 'completed',
-              started_at: latestRun.run_started_at ? new Date(latestRun.run_started_at) : undefined,
-            });
-            logger.debug(`Updated DB record ${dbRecordId} with run_id ${runId}`);
-          }
-        } catch (error) {
-          logger.error('Failed to update workflow run in database:', error);
-        }
-      }
-
       // Check if workflow has completed
       if (status === 'completed') {
-        // Update database with final status
-        if (isDatabaseAvailable() && dbRecordId !== null) {
-          try {
-            await db.updateWorkflowRunById(dbRecordId, {
-              status: 'completed',
-              conclusion: conclusion as any,
-              completed_at: new Date(),
-            });
-            logger.debug(`Updated DB record ${dbRecordId} with completion status`);
-          } catch (error) {
-            logger.error('Failed to update workflow completion in database:', error);
-          }
-        }
-
         if (conclusion === 'success') {
           logger.info(`✓ Workflow ${workflowName} completed successfully! Run ID: ${latestRun.id}`);
           return;

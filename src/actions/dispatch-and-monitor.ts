@@ -9,7 +9,7 @@ export async function dispatchAndMonitorWorkflow(params: DispatchWorkflowParams)
   const { octokit, owner, repo, workflow } = params;
 
   try {
-    const { dbRecordId } = await dispatchWorkflow(params);
+    await dispatchWorkflow(params);
 
     // Start monitoring in the background (don't await this)
     monitorWorkflow({
@@ -18,7 +18,6 @@ export async function dispatchAndMonitorWorkflow(params: DispatchWorkflowParams)
       repo,
       workflowName: workflow.name,
       workflowId: workflow.id,
-      dbRecordId,
     }).catch((error) => {
       logger.error(`Error monitoring workflow ${workflow.name}:`, error);
     });

@@ -5,7 +5,6 @@ import fs from "fs";
 import http from "http";
 import logger from "./logger.js";
 import { registerWebhookHandlers } from "./webhooks/index.js";
-import { initializeDatabase } from "./db/index.js";
 
 // Load environment variables
 dotenv.config();
@@ -99,9 +98,6 @@ export async function initializeServer(): Promise<http.Server> {
 
   // Validate environment
   const { appId, webhookSecret, privateKey } = validateEnvironment();
-
-  // Initialize database (optional)
-  await initializeDatabase();
 
   // Create app
   const app = createApp(appId, privateKey, webhookSecret);

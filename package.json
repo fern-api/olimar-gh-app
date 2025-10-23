@@ -6,14 +6,11 @@
   "main": "dist/index.js",
   "packageManager": "pnpm@9.0.0",
   "scripts": {
-    "build": "pnpm --filter @olimar/workflow-db run build && pnpm exec tsc",
-    "build:app": "tsc",
+    "build": "tsc",
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts",
     "watch": "tsc --watch",
-    "tunnel": "node scripts/tunnel.js",
-    "db:migrate": "pnpm --filter @olimar/workflow-db run migrate",
-    "db:migrate:status": "pnpm --filter @olimar/workflow-db run migrate:status"
+    "tunnel": "node scripts/tunnel.js"
   },
   "keywords": [
     "github",
@@ -24,7 +21,6 @@
   "license": "MIT",
   "dependencies": {
     "@octokit/webhooks": "^13.3.0",
-    "@olimar/workflow-db": "workspace:*",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "octokit": "^4.0.2",
