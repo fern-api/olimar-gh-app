@@ -46,6 +46,7 @@ export interface WorkflowRun {
   commit_ref: string;
   status: WorkflowRunStatus;
   conclusion?: WorkflowRunConclusion;
+  version_input?: string | null;
   triggered_at: Date;
   started_at?: Date;
   completed_at?: Date;
@@ -112,11 +113,12 @@ export class WorkflowDatabase {
         commit_ref,
         status,
         conclusion,
+        version_input,
         triggered_at,
         started_at,
         completed_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
       RETURNING id
     `;
 
@@ -130,6 +132,7 @@ export class WorkflowDatabase {
       run.commit_ref,
       run.status,
       run.conclusion || null,
+      run.version_input || null,
       run.triggered_at,
       run.started_at || null,
       run.completed_at || null,

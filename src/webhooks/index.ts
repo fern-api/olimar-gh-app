@@ -1,6 +1,6 @@
 import { App } from 'octokit';
 import logger from '../logger.js';
-import { dispatchAndMonitorWorkflow } from '../actions/index.js';
+import { dispatchAndMonitorWorkflow, recordWorkflowRun } from '../actions/index.js';
 
 // This function registers all webhook event handlers on the app instance
 export function registerWebhookHandlers(app: App) {
@@ -97,6 +97,80 @@ export function registerWebhookHandlers(app: App) {
         }
       }
       logger.error(error);
+    }
+  });
+
+  // This adds an event handler for workflow_run events.
+  // Records SDK workflow runs in the database when they complete, are requested, or are in progress.
+  app.webhooks.on('workflow_run', async ({ octokit, payload }) => {
+    const repo = payload.repository.name;
+    const owner = payload.repository.owner?.login;
+    const action = payload.action;
+    const workflowRun = payload.workflow_run;
+
+    if (!owner) {
+      logger.error('No repository owner found in workflow_run payload');
+      return;
+    }
+
+    logger.debug(`Workflow run event - Action: ${action}, Workflow: ${workflowRun.name}, Status: ${workflowRun.status}`);
+
+    try {
+      // Validate required fields
+      if (!workflowRun.name || !workflowRun.head_sha || !workflowRun.head_branch) {
+        logger.warn('Workflow run missing required fields, skipping');
+        return;
+      }
+
+      // Filter to only track SDK workflows (same logic as push handler)
+      const workflowName = workflowRun.name.toLowerCase();
+      const workflowPath = workflowRun.path?.toLowerCase() || '';
+
+      const isSdkWorkflow = workflowName.includes('sdk') || workflowPath.includes('sdk');
+
+      if (!isSdkWorkflow) {
+        logger.debug(`Skipping non-SDK workflow: ${workflowRun.name}`);
+        return;
+      }
+
+      logger.info(`Processing workflow_run event for SDK workflow: ${workflowRun.name} (${action})`);
+
+      // Record the workflow run in the database
+      await recordWorkflowRun({
+        octokit,
+        owner,
+        repo,
+        workflowRun: {
+          id: workflowRun.id,
+          name: workflowRun.name,
+          workflow_id: workflowRun.workflow_id,
+          status: workflowRun.status,
+          conclusion: workflowRun.conclusion,
+          head_sha: workflowRun.head_sha,
+          head_branch: workflowRun.head_branch,
+          run_started_at: workflowRun.run_started_at,
+          created_at: workflowRun.created_at,
+          updated_at: workflowRun.updated_at,
+        },
+      });
+
+      // Log completion status
+      if (action === 'completed') {
+        if (workflowRun.conclusion === 'success') {
+          logger.info(`✓ SDK workflow ${workflowRun.name} completed successfully`);
+        } else {
+          logger.warn(`✗ SDK workflow ${workflowRun.name} completed with conclusion: ${workflowRun.conclusion}`);
+        }
+      }
+
+    } catch (error) {
+      if (error && typeof error === 'object' && 'response' in error) {
+        const err = error as { response?: { status: number; data: { message: string } } };
+        if (err.response) {
+          logger.error(`Error processing workflow_run! Status: ${err.response.status}. Message: ${err.response.data.message}`);
+        }
+      }
+      logger.error('Error processing workflow_run event:', error);
     }
   });
 

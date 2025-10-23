@@ -11,3 +11,4 @@ export * from './types.js';
 export * from './dispatch-workflow.js';
 export * from './monitor-workflow.js';
 export * from './dispatch-and-monitor.js';
+export * from './record-workflow-run.js';

@@ -24,6 +24,9 @@ export async function dispatchWorkflow(params: DispatchWorkflowParams): Promise<
   let dbRecordId: number | null = null;
   if (isDatabaseAvailable()) {
     try {
+      // Extract version input if provided
+      const versionInput = inputs.version || null;
+
       dbRecordId = await db.insertWorkflowRun({
         github_org: owner,
         github_repo: repo,
@@ -32,9 +35,10 @@ export async function dispatchWorkflow(params: DispatchWorkflowParams): Promise<
         commit_sha: commitSha,
         commit_ref: ref,
         status: 'queued',
+        version_input: versionInput,
         triggered_at: new Date(),
       });
-      logger.debug(`Created DB record ${dbRecordId} for workflow ${workflow.name}`);
+      logger.debug(`Created DB record ${dbRecordId} for workflow ${workflow.name}${versionInput ? ` with version ${versionInput}` : ''}`);
     } catch (error) {
       logger.error('Failed to save workflow run to database:', error);
       // Continue processing even if DB insert fails

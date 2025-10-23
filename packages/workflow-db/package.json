@@ -14,7 +14,9 @@
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "migrate": "tsx scripts/migrate.ts run",
+    "migrate:status": "tsx scripts/migrate.ts status"
   },
   "keywords": [
     "postgresql",
@@ -30,6 +32,8 @@
   },
   "devDependencies": {
     "@types/pg": "^8.15.5",
+    "dotenv": "^16.4.5",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   }
 }

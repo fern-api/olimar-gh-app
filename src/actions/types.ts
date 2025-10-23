@@ -1,8 +1,10 @@
+import { Octokit } from 'octokit';
+
 /**
  * Base parameters for all GitHub actions
  */
 export interface BaseActionParams {
-  octokit: any; // Typed as any to match webhook handler signature from octokit package
+  octokit: Octokit;
   owner: string;
   repo: string;
 }

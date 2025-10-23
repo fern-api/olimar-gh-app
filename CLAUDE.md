@@ -307,9 +307,49 @@ try {
 ```
 
 **Database Schema:**
-The schema is defined in `packages/workflow-db/scripts/schema.sql`. To set up the database:
+The schema is defined in `packages/workflow-db/scripts/schema.sql`.
+
+**Database Migrations:**
+This project includes a migration system to manage database schema changes over time. Migrations are stored in `packages/workflow-db/scripts/migrations/` and are numbered sequentially (001, 002, etc.).
+
+To run migrations:
 ```bash
-psql -U your_user -d your_database -f packages/workflow-db/scripts/schema.sql
+# Run all pending migrations
+pnpm run db:migrate
+
+# Check migration status (shows applied and pending migrations)
+pnpm run db:migrate:status
+```
+
+For new databases, you can either:
+1. Run migrations (recommended for production):
+   ```bash
+   pnpm run db:migrate
+   ```
+
+2. Or apply the full schema directly (useful for development):
+   ```bash
+   psql -U your_user -d your_database -f packages/workflow-db/scripts/schema.sql
+   ```
+
+**Creating New Migrations:**
+When adding database schema changes:
+1. Create a new migration file in `packages/workflow-db/scripts/migrations/`
+2. Name it with the next sequential number: `00X_description.sql`
+3. Update the main schema file: `packages/workflow-db/scripts/schema.sql`
+4. Run `pnpm run db:migrate` to test your migration
+5. Commit both files to version control
+
+Example migration file (`002_add_new_field.sql`):
+```sql
+-- Migration: Add new field description
+-- Date: 2025-10-23
+-- Description: Brief description of what this migration does
+
+ALTER TABLE workflow_runs
+ADD COLUMN IF NOT EXISTS new_field VARCHAR(100);
+
+COMMENT ON COLUMN workflow_runs.new_field IS 'Description of the field';
 ```
 
 **Package Documentation:**

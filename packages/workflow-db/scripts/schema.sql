@@ -19,6 +19,9 @@ CREATE TABLE IF NOT EXISTS workflow_runs (
   status VARCHAR(50) NOT NULL,
   conclusion VARCHAR(50),
 
+  -- Workflow inputs
+  version_input VARCHAR(50),
+
   -- Timestamps
   triggered_at TIMESTAMP WITH TIME ZONE NOT NULL,
   started_at TIMESTAMP WITH TIME ZONE,
@@ -56,6 +59,7 @@ COMMENT ON COLUMN workflow_runs.commit_sha IS 'Git commit SHA that triggered the
 COMMENT ON COLUMN workflow_runs.commit_ref IS 'Git ref (branch/tag) that triggered the workflow';
 COMMENT ON COLUMN workflow_runs.status IS 'Current status: queued, in_progress, or completed';
 COMMENT ON COLUMN workflow_runs.conclusion IS 'Final conclusion when completed: success, failure, etc.';
+COMMENT ON COLUMN workflow_runs.version_input IS 'Version input parameter passed to workflow_dispatch (if applicable)';
 COMMENT ON COLUMN workflow_runs.triggered_at IS 'When the workflow was triggered';
 COMMENT ON COLUMN workflow_runs.started_at IS 'When the workflow run actually started executing';
 COMMENT ON COLUMN workflow_runs.completed_at IS 'When the workflow run finished';
