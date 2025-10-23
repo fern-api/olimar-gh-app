@@ -10,11 +10,13 @@ A minimal Node.js server written in TypeScript that uses Octokit.js to create a 
 - Built with Express.js and TypeScript
 - Uses Octokit.js for GitHub API interactions
 - Structured logging with winston (configurable log levels with timestamps)
+- PostgreSQL integration for tracking workflow runs (optional)
 
 ## Prerequisites
 
 - Node.js (v18 or higher)
 - pnpm (v9 or higher)
+- PostgreSQL (v12 or higher) - optional, for workflow run tracking
 - A GitHub App with the following permissions:
   - Repository permissions:
     - Actions: Read & Write
@@ -44,7 +46,22 @@ cp .env.example .env
    - `PORT`: Server port (default: 3000)
    - `LOG_LEVEL`: Logging level (default: info). Options: error, warn, info, debug
 
+   Database configuration (optional - only if you want to track workflow runs):
+   - `DB_HOST`: PostgreSQL host (default: localhost)
+   - `DB_PORT`: PostgreSQL port (default: 5432)
+   - `DB_NAME`: Database name
+   - `DB_USER`: Database user
+   - `DB_PASSWORD`: Database password
+   - `DB_POOL_MAX`: Maximum pool size (default: 20)
+   - `DB_IDLE_TIMEOUT`: Idle timeout in ms (default: 30000)
+   - `DB_CONNECTION_TIMEOUT`: Connection timeout in ms (default: 2000)
+
 4. Download your GitHub App's private key from GitHub and save it as `private-key.pem` in the project root
+
+5. (Optional) Set up PostgreSQL database:
+   - Create a PostgreSQL database
+   - Run the schema: `psql -U your_user -d your_database -f packages/workflow-db/scripts/schema.sql`
+   - Configure database connection in `.env`
 
 ## Development
 

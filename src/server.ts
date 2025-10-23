@@ -1,0 +1,113 @@
+import dotenv from "dotenv";
+import { App } from "octokit";
+import { createNodeMiddleware } from "@octokit/webhooks";
+import fs from "fs";
+import http from "http";
+import logger from "./logger.js";
+import { registerWebhookHandlers } from "./webhooks/index.js";
+import { initializeDatabase } from "./db/index.js";
+
+// Load environment variables
+dotenv.config();
+
+/**
+ * Load and validate private key from environment
+ */
+function loadPrivateKey(): string {
+  const privateKeyEnv = process.env.PRIVATE_KEY;
+  const privateKeyPath = process.env.PRIVATE_KEY_PATH;
+
+  if (privateKeyEnv) {
+    return privateKeyEnv;
+  } else if (privateKeyPath) {
+    return fs.readFileSync(privateKeyPath, "utf8");
+  } else {
+    throw new Error('Either PRIVATE_KEY or PRIVATE_KEY_PATH must be set in environment variables');
+  }
+}
+
+/**
+ * Validate required environment variables
+ */
+function validateEnvironment(): { appId: string; webhookSecret: string; privateKey: string } {
+  const appId = process.env.APP_ID;
+  const webhookSecret = process.env.WEBHOOK_SECRET;
+
+  if (!appId) {
+    throw new Error('APP_ID is required in environment variables');
+  }
+  if (!webhookSecret) {
+    throw new Error('WEBHOOK_SECRET is required in environment variables');
+  }
+
+  const privateKey = loadPrivateKey();
+
+  return { appId, webhookSecret, privateKey };
+}
+
+/**
+ * Create and configure the Octokit App instance
+ */
+function createApp(appId: string, privateKey: string, webhookSecret: string): App {
+  const app = new App({
+    appId: appId,
+    privateKey: privateKey,
+    webhooks: {
+      secret: webhookSecret
+    },
+  });
+
+  // Register webhook handlers
+  registerWebhookHandlers(app);
+
+  // Handle webhook errors
+  app.webhooks.onError((error) => {
+    if (error.name === "AggregateError") {
+      logger.error(`Error processing request: ${error.event}`);
+    } else {
+      logger.error(error);
+    }
+  });
+
+  return app;
+}
+
+/**
+ * Start the HTTP server
+ */
+function startServer(app: App): http.Server {
+  const port = Number(process.env.PORT) || 3000;
+  const host = process.env.HOST || 'localhost';
+  const path = "/api/webhook";
+  const localWebhookUrl = `http://${host}:${port}${path}`;
+
+  const middleware = createNodeMiddleware(app.webhooks, { path });
+
+  const server = http.createServer(middleware).listen(port, () => {
+    logger.info(`Server is listening for events at: ${localWebhookUrl}`);
+    logger.info('Press Ctrl + C to quit.');
+  });
+
+  return server;
+}
+
+/**
+ * Initialize and start the application
+ */
+export async function initializeServer(): Promise<http.Server> {
+  logger.info('Starting GitHub App webhook server...');
+
+  // Validate environment
+  const { appId, webhookSecret, privateKey } = validateEnvironment();
+
+  // Initialize database (optional)
+  await initializeDatabase();
+
+  // Create app
+  const app = createApp(appId, privateKey, webhookSecret);
+
+  // Start server
+  const server = startServer(app);
+
+  return server;
+}
