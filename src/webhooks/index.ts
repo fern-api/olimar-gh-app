@@ -1,6 +1,6 @@
 import { App } from 'octokit';
 import logger from '../logger.js';
-import { dispatchAndMonitorWorkflow } from './workflow-runner.js';
+import { dispatchAndMonitorWorkflow } from '../actions/index.js';
 
 // This function registers all webhook event handlers on the app instance
 export function registerWebhookHandlers(app: App) {
