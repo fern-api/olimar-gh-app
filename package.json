@@ -1,7 +1,7 @@
 {
-  "name": "github-app-webhook-server",
+  "name": "olimar-gh-app",
   "version": "1.0.0",
-  "description": "GitHub App webhook server that triggers dispatch workflows on merge events",
+  "description": "Ferns Autopilot service for pushing updates to customers and tracking generation workflows",
   "type": "module",
   "main": "dist/index.js",
   "packageManager": "pnpm@9.0.0",
