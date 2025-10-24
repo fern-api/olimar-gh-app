@@ -8,3 +8,4 @@
 
 export * from './types.js';
 export * from './dispatch-workflow.js';
+export * from './fetch-generators.js';
