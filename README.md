@@ -58,11 +58,6 @@ cp .env.example .env
 
 4. Download your GitHub App's private key from GitHub and save it as `private-key.pem` in the project root
 
-5. (Optional) Set up PostgreSQL database:
-   - Create a PostgreSQL database
-   - Run the schema: `psql -U your_user -d your_database -f packages/workflow-db/scripts/schema.sql`
-   - Configure database connection in `.env`
-
 ## Development
 
 Run in development mode with auto-reload:
@@ -80,18 +75,6 @@ pnpm build
 Start the server:
 ```bash
 pnpm start
-```
-
-## Workflow Configuration
-
-The server maps branches to specific workflow files. Edit the `getWorkflowForBranch` function in `src/webhooks.ts` to customize:
-
-```typescript
-const workflowMap: Record<string, string> = {
-  'main': 'deploy-production.yml',
-  'staging': 'deploy-staging.yml',
-  'develop': 'run-tests.yml',
-};
 ```
 
 ## Endpoints
