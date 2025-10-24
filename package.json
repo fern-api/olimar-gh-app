@@ -10,7 +10,20 @@
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts",
     "watch": "tsc --watch",
-    "tunnel": "node scripts/tunnel.js"
+    "tunnel": "node scripts/tunnel.js",
+    "docker:build": "docker build -t olimar-gh-app:latest .",
+    "docker:run": "docker run -p 3000:3000 --env-file .env olimar-gh-app:latest",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:restart": "docker-compose restart",
+    "db:migrate": "./scripts/db-migrate.sh up",
+    "db:migrate:down": "./scripts/db-migrate.sh down",
+    "db:migrate:status": "./scripts/db-migrate.sh status",
+    "db:migrate:reset": "./scripts/db-migrate.sh reset",
+    "db:migrate:create": "./scripts/db-create.sh",
+    "db:psql": "docker-compose exec postgres psql -U ${DB_USER:-postgres} -d ${DB_NAME:-olimar}",
+    "db:reset": "docker-compose down -v && docker-compose up -d postgres && sleep 5 && pnpm run db:migrate"
   },
   "keywords": [
     "github",

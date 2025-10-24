@@ -82,8 +82,19 @@ function startServer(app: App): http.Server {
 
   const middleware = createNodeMiddleware(app.webhooks, { path });
 
-  const server = http.createServer(middleware).listen(port, () => {
+  const server = http.createServer((req, res) => {
+    // Health check endpoint
+    if (req.url === '/health' && req.method === 'GET') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }));
+      return;
+    }
+
+    // Pass all other requests to webhook middleware
+    middleware(req, res);
+  }).listen(port, () => {
     logger.info(`Server is listening for events at: ${localWebhookUrl}`);
+    logger.info(`Health check available at: http://${host}:${port}/health`);
     logger.info('Press Ctrl + C to quit.');
   });
 

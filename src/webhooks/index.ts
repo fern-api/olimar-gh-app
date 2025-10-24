@@ -155,5 +155,43 @@ export function registerWebhookHandlers(app: App) {
     }
   });
 
+  // This adds an event handler for workflow_dispatch events.
+  // Logs when a workflow is manually triggered via workflow_dispatch.
+  app.webhooks.on('workflow_dispatch', async ({ octokit, payload }) => {
+    const repo = payload.repository.name;
+    const owner = payload.repository.owner?.login;
+    const workflow = payload.workflow;
+    const ref = payload.ref;
+
+    if (!owner) {
+      logger.error('No repository owner found in workflow_dispatch payload');
+      return;
+    }
+
+    logger.info(`Workflow dispatch event - Workflow: ${workflow}, Ref: ${ref}, Repo: ${owner}/${repo}`);
+    logger.debug('Workflow dispatch payload:', JSON.stringify(payload, null, 2));
+
+    try {
+      // You can add custom logic here to track manually dispatched workflows
+      // For example, storing the dispatch event in a database or triggering other actions
+
+      const workflowName = workflow?.toLowerCase() || '';
+      const isSdkWorkflow = workflowName.includes('sdk');
+
+      if (isSdkWorkflow) {
+        logger.info(`SDK workflow "${workflow}" was manually dispatched on ${ref}`);
+      }
+
+    } catch (error) {
+      if (error && typeof error === 'object' && 'response' in error) {
+        const err = error as { response?: { status: number; data: { message: string } } };
+        if (err.response) {
+          logger.error(`Error processing workflow_dispatch! Status: ${err.response.status}. Message: ${err.response.data.message}`);
+        }
+      }
+      logger.error('Error processing workflow_dispatch event:', error);
+    }
+  });
+
   logger.info('Webhook handlers registered');
 }
