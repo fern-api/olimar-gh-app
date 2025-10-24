@@ -1,6 +1,12 @@
 import { App } from 'octokit';
 import logger from '../logger.js';
-import { dispatchAndMonitorWorkflow } from '../actions/index.js';
+import { dispatchWorkflow } from '../actions/index.js';
+import { getClient } from '../database/client.js';
+import {
+  createWorkflowRun,
+  getWorkflowRunByWorkflowId,
+  updateWorkflowRunStatus
+} from '../database/generated-queries/workflow_runs_sql.js';
 
 // This function registers all webhook event handlers on the app instance
 export function registerWebhookHandlers(app: App) {
@@ -66,7 +72,7 @@ export function registerWebhookHandlers(app: App) {
       // Step 3: Dispatch each SDK workflow with inputs.version = 1.0.0
       const dispatchPromises = sdkWorkflows.map(async (workflow) => {
         try {
-          await dispatchAndMonitorWorkflow({
+          await dispatchWorkflow({
             octokit,
             owner,
             repo,
@@ -82,7 +88,7 @@ export function registerWebhookHandlers(app: App) {
             commitSha,
           });
         } catch (error) {
-          // Error already logged in dispatchAndMonitorWorkflow
+          // Error already logged in dispatchWorkflow
           logger.error(`Failed to dispatch workflow ${workflow.name}`);
         }
       });
@@ -134,6 +140,47 @@ export function registerWebhookHandlers(app: App) {
       }
 
       logger.info(`Processing workflow_run event for SDK workflow: ${workflowRun.name} (${action})`);
+
+      // Save/update workflow run in database
+      const db = await getClient();
+      const workflowRunId = workflowRun.id.toString();
+      const workflowUrl = workflowRun.html_url;
+
+      // Check if workflow run already exists
+      const existingRun = await getWorkflowRunByWorkflowId(db, { workflowId: workflowRunId });
+
+      if (!existingRun) {
+        // Create new workflow run record
+        const newRun = await createWorkflowRun(db, {
+          workflowId: workflowRunId,
+          workflowUrl,
+          org: owner,
+          repo
+        });
+        logger.info(`Saved new workflow run to database: ${workflowRun.name} (ID: ${newRun?.id})`);
+      }
+
+      // Update status and conclusion based on workflow_run
+      const statusMap: Record<string, string> = {
+        'queued': 'queued',
+        'in_progress': 'in_progress',
+        'completed': 'completed',
+        'waiting': 'waiting',
+        'requested': 'requested',
+        'pending': 'pending'
+      };
+
+      const dbStatus = statusMap[workflowRun.status] || 'queued';
+
+      // Conclusion is only available when workflow is completed
+      const conclusion = workflowRun.conclusion || null;
+
+      await updateWorkflowRunStatus(db, {
+        workflowId: workflowRunId,
+        status: dbStatus,
+        conclusion: conclusion
+      });
+      logger.info(`Updated workflow run status to: ${dbStatus}${conclusion ? `, conclusion: ${conclusion}` : ''}`);
 
       // Log completion status
       if (action === 'completed') {

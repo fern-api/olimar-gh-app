@@ -4,11 +4,12 @@ import winston from 'winston';
 const logLevel = process.env.LOG_LEVEL || 'info';
 
 // Create a custom format that includes timestamps
-const logFormat = winston.format.combine(
+const consoleFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
   winston.format.errors({ stack: true }),
+  winston.format.colorize({ all: false, level: true }),
   winston.format.printf(({ timestamp, level, message, stack }) => {
-    const baseMessage = `[${timestamp}] ${level.toUpperCase()}: ${message}`;
+    const baseMessage = `[${timestamp}] ${level}: ${message}`;
     return stack ? `${baseMessage}\n${stack}` : baseMessage;
   })
 );
@@ -16,13 +17,9 @@ const logFormat = winston.format.combine(
 // Create the logger instance
 const logger = winston.createLogger({
   level: logLevel,
-  format: logFormat,
   transports: [
     new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        logFormat
-      ),
+      format: consoleFormat,
     }),
   ],
 });

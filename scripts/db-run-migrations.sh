@@ -15,7 +15,7 @@ DB_HOST=${DB_HOST:-localhost}
 DB_PORT=${DB_PORT:-5432}
 DB_USER=${DB_USER:-postgres}
 DB_PASSWORD=${DB_PASSWORD:-postgres}
-DB_NAME=${DB_NAME:-olimar}
+DB_NAME=${DB_NAME:-autopilot}
 
 # Construct database URL
 DB_URL="postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable"

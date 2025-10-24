@@ -13,7 +13,7 @@ INSERT INTO workflow_runs (
 ) VALUES (
     $1, $2, $3, $4
 )
-RETURNING id, workflow_id, workflow_url, org, repo, created_at, updated_at`;
+RETURNING id, workflow_id, workflow_url, org, repo, created_at, updated_at, status, conclusion`;
 
 export interface CreateWorkflowRunArgs {
     workflowId: string;
@@ -30,6 +30,8 @@ export interface CreateWorkflowRunRow {
     repo: string;
     createdAt: Date;
     updatedAt: Date;
+    status: string;
+    conclusion: string | null;
 }
 
 export async function createWorkflowRun(client: Client, args: CreateWorkflowRunArgs): Promise<CreateWorkflowRunRow | null> {
@@ -49,12 +51,14 @@ export async function createWorkflowRun(client: Client, args: CreateWorkflowRunA
         org: row[3],
         repo: row[4],
         createdAt: row[5],
-        updatedAt: row[6]
+        updatedAt: row[6],
+        status: row[7],
+        conclusion: row[8]
     };
 }
 
 export const getWorkflowRunQuery = `-- name: GetWorkflowRun :one
-SELECT id, workflow_id, workflow_url, org, repo, created_at, updated_at FROM workflow_runs
+SELECT id, workflow_id, workflow_url, org, repo, created_at, updated_at, status, conclusion FROM workflow_runs
 WHERE id = $1`;
 
 export interface GetWorkflowRunArgs {
@@ -69,6 +73,8 @@ export interface GetWorkflowRunRow {
     repo: string;
     createdAt: Date;
     updatedAt: Date;
+    status: string;
+    conclusion: string | null;
 }
 
 export async function getWorkflowRun(client: Client, args: GetWorkflowRunArgs): Promise<GetWorkflowRunRow | null> {
@@ -88,12 +94,14 @@ export async function getWorkflowRun(client: Client, args: GetWorkflowRunArgs): 
         org: row[3],
         repo: row[4],
         createdAt: row[5],
-        updatedAt: row[6]
+        updatedAt: row[6],
+        status: row[7],
+        conclusion: row[8]
     };
 }
 
 export const getWorkflowRunByWorkflowIdQuery = `-- name: GetWorkflowRunByWorkflowId :one
-SELECT id, workflow_id, workflow_url, org, repo, created_at, updated_at FROM workflow_runs
+SELECT id, workflow_id, workflow_url, org, repo, created_at, updated_at, status, conclusion FROM workflow_runs
 WHERE workflow_id = $1
 ORDER BY created_at DESC
 LIMIT 1`;
@@ -110,6 +118,8 @@ export interface GetWorkflowRunByWorkflowIdRow {
     repo: string;
     createdAt: Date;
     updatedAt: Date;
+    status: string;
+    conclusion: string | null;
 }
 
 export async function getWorkflowRunByWorkflowId(client: Client, args: GetWorkflowRunByWorkflowIdArgs): Promise<GetWorkflowRunByWorkflowIdRow | null> {
@@ -129,12 +139,14 @@ export async function getWorkflowRunByWorkflowId(client: Client, args: GetWorkfl
         org: row[3],
         repo: row[4],
         createdAt: row[5],
-        updatedAt: row[6]
+        updatedAt: row[6],
+        status: row[7],
+        conclusion: row[8]
     };
 }
 
 export const listWorkflowRunsQuery = `-- name: ListWorkflowRuns :many
-SELECT id, workflow_id, workflow_url, org, repo, created_at, updated_at FROM workflow_runs
+SELECT id, workflow_id, workflow_url, org, repo, created_at, updated_at, status, conclusion FROM workflow_runs
 ORDER BY created_at DESC
 LIMIT $1 OFFSET $2`;
 
@@ -151,6 +163,8 @@ export interface ListWorkflowRunsRow {
     repo: string;
     createdAt: Date;
     updatedAt: Date;
+    status: string;
+    conclusion: string | null;
 }
 
 export async function listWorkflowRuns(client: Client, args: ListWorkflowRunsArgs): Promise<ListWorkflowRunsRow[]> {
@@ -167,13 +181,15 @@ export async function listWorkflowRuns(client: Client, args: ListWorkflowRunsArg
             org: row[3],
             repo: row[4],
             createdAt: row[5],
-            updatedAt: row[6]
+            updatedAt: row[6],
+            status: row[7],
+            conclusion: row[8]
         };
     });
 }
 
 export const listWorkflowRunsByRepoQuery = `-- name: ListWorkflowRunsByRepo :many
-SELECT id, workflow_id, workflow_url, org, repo, created_at, updated_at FROM workflow_runs
+SELECT id, workflow_id, workflow_url, org, repo, created_at, updated_at, status, conclusion FROM workflow_runs
 WHERE org = $1 AND repo = $2
 ORDER BY created_at DESC
 LIMIT $3 OFFSET $4`;
@@ -193,6 +209,8 @@ export interface ListWorkflowRunsByRepoRow {
     repo: string;
     createdAt: Date;
     updatedAt: Date;
+    status: string;
+    conclusion: string | null;
 }
 
 export async function listWorkflowRunsByRepo(client: Client, args: ListWorkflowRunsByRepoArgs): Promise<ListWorkflowRunsByRepoRow[]> {
@@ -209,13 +227,15 @@ export async function listWorkflowRunsByRepo(client: Client, args: ListWorkflowR
             org: row[3],
             repo: row[4],
             createdAt: row[5],
-            updatedAt: row[6]
+            updatedAt: row[6],
+            status: row[7],
+            conclusion: row[8]
         };
     });
 }
 
 export const listWorkflowRunsByOrgQuery = `-- name: ListWorkflowRunsByOrg :many
-SELECT id, workflow_id, workflow_url, org, repo, created_at, updated_at FROM workflow_runs
+SELECT id, workflow_id, workflow_url, org, repo, created_at, updated_at, status, conclusion FROM workflow_runs
 WHERE org = $1
 ORDER BY created_at DESC
 LIMIT $2 OFFSET $3`;
@@ -234,6 +254,8 @@ export interface ListWorkflowRunsByOrgRow {
     repo: string;
     createdAt: Date;
     updatedAt: Date;
+    status: string;
+    conclusion: string | null;
 }
 
 export async function listWorkflowRunsByOrg(client: Client, args: ListWorkflowRunsByOrgArgs): Promise<ListWorkflowRunsByOrgRow[]> {
@@ -250,7 +272,9 @@ export async function listWorkflowRunsByOrg(client: Client, args: ListWorkflowRu
             org: row[3],
             repo: row[4],
             createdAt: row[5],
-            updatedAt: row[6]
+            updatedAt: row[6],
+            status: row[7],
+            conclusion: row[8]
         };
     });
 }
@@ -260,7 +284,7 @@ UPDATE workflow_runs
 SET
     workflow_url = COALESCE($2, workflow_url)
 WHERE id = $1
-RETURNING id, workflow_id, workflow_url, org, repo, created_at, updated_at`;
+RETURNING id, workflow_id, workflow_url, org, repo, created_at, updated_at, status, conclusion`;
 
 export interface UpdateWorkflowRunArgs {
     id: number;
@@ -275,6 +299,8 @@ export interface UpdateWorkflowRunRow {
     repo: string;
     createdAt: Date;
     updatedAt: Date;
+    status: string;
+    conclusion: string | null;
 }
 
 export async function updateWorkflowRun(client: Client, args: UpdateWorkflowRunArgs): Promise<UpdateWorkflowRunRow | null> {
@@ -294,7 +320,58 @@ export async function updateWorkflowRun(client: Client, args: UpdateWorkflowRunA
         org: row[3],
         repo: row[4],
         createdAt: row[5],
-        updatedAt: row[6]
+        updatedAt: row[6],
+        status: row[7],
+        conclusion: row[8]
+    };
+}
+
+export const updateWorkflowRunStatusQuery = `-- name: UpdateWorkflowRunStatus :one
+UPDATE workflow_runs
+SET
+    status = $2,
+    conclusion = COALESCE($3, conclusion)
+WHERE workflow_id = $1
+RETURNING id, workflow_id, workflow_url, org, repo, created_at, updated_at, status, conclusion`;
+
+export interface UpdateWorkflowRunStatusArgs {
+    workflowId: string;
+    status: string;
+    conclusion: string | null;
+}
+
+export interface UpdateWorkflowRunStatusRow {
+    id: number;
+    workflowId: string;
+    workflowUrl: string;
+    org: string;
+    repo: string;
+    createdAt: Date;
+    updatedAt: Date;
+    status: string;
+    conclusion: string | null;
+}
+
+export async function updateWorkflowRunStatus(client: Client, args: UpdateWorkflowRunStatusArgs): Promise<UpdateWorkflowRunStatusRow | null> {
+    const result = await client.query({
+        text: updateWorkflowRunStatusQuery,
+        values: [args.workflowId, args.status, args.conclusion],
+        rowMode: "array"
+    });
+    if (result.rows.length !== 1) {
+        return null;
+    }
+    const row = result.rows[0];
+    return {
+        id: row[0],
+        workflowId: row[1],
+        workflowUrl: row[2],
+        org: row[3],
+        repo: row[4],
+        createdAt: row[5],
+        updatedAt: row[6],
+        status: row[7],
+        conclusion: row[8]
     };
 }
 
@@ -382,7 +459,7 @@ export async function countWorkflowRunsByRepo(client: Client, args: CountWorkflo
 }
 
 export const getRecentWorkflowRunsQuery = `-- name: GetRecentWorkflowRuns :many
-SELECT id, workflow_id, workflow_url, org, repo, created_at, updated_at FROM workflow_runs
+SELECT id, workflow_id, workflow_url, org, repo, created_at, updated_at, status, conclusion FROM workflow_runs
 WHERE created_at > $1
 ORDER BY created_at DESC`;
 
@@ -398,6 +475,8 @@ export interface GetRecentWorkflowRunsRow {
     repo: string;
     createdAt: Date;
     updatedAt: Date;
+    status: string;
+    conclusion: string | null;
 }
 
 export async function getRecentWorkflowRuns(client: Client, args: GetRecentWorkflowRunsArgs): Promise<GetRecentWorkflowRunsRow[]> {
@@ -414,19 +493,21 @@ export async function getRecentWorkflowRuns(client: Client, args: GetRecentWorkf
             org: row[3],
             repo: row[4],
             createdAt: row[5],
-            updatedAt: row[6]
+            updatedAt: row[6],
+            status: row[7],
+            conclusion: row[8]
         };
     });
 }
 
 export const getWorkflowRunsByDateRangeQuery = `-- name: GetWorkflowRunsByDateRange :many
-SELECT id, workflow_id, workflow_url, org, repo, created_at, updated_at FROM workflow_runs
+SELECT id, workflow_id, workflow_url, org, repo, created_at, updated_at, status, conclusion FROM workflow_runs
 WHERE created_at BETWEEN $1 AND $2
 ORDER BY created_at DESC`;
 
 export interface GetWorkflowRunsByDateRangeArgs {
-    createdAt: Date;
-    createdAt: Date;
+    startDate: Date;
+    endDate: Date;
 }
 
 export interface GetWorkflowRunsByDateRangeRow {
@@ -437,12 +518,14 @@ export interface GetWorkflowRunsByDateRangeRow {
     repo: string;
     createdAt: Date;
     updatedAt: Date;
+    status: string;
+    conclusion: string | null;
 }
 
 export async function getWorkflowRunsByDateRange(client: Client, args: GetWorkflowRunsByDateRangeArgs): Promise<GetWorkflowRunsByDateRangeRow[]> {
     const result = await client.query({
         text: getWorkflowRunsByDateRangeQuery,
-        values: [args.createdAt, args.createdAt],
+        values: [args.startDate, args.endDate],
         rowMode: "array"
     });
     return result.rows.map(row => {
@@ -453,7 +536,9 @@ export async function getWorkflowRunsByDateRange(client: Client, args: GetWorkfl
             org: row[3],
             repo: row[4],
             createdAt: row[5],
-            updatedAt: row[6]
+            updatedAt: row[6],
+            status: row[7],
+            conclusion: row[8]
         };
     });
 }

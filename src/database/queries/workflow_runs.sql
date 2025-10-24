@@ -43,6 +43,14 @@ SET
 WHERE id = $1
 RETURNING *;
 
+-- name: UpdateWorkflowRunStatus :one
+UPDATE workflow_runs
+SET
+    status = $2,
+    conclusion = COALESCE(sqlc.narg(conclusion), conclusion)
+WHERE workflow_id = $1
+RETURNING *;
+
 -- name: DeleteWorkflowRun :exec
 DELETE FROM workflow_runs
 WHERE id = $1;
@@ -65,5 +73,5 @@ ORDER BY created_at DESC;
 
 -- name: GetWorkflowRunsByDateRange :many
 SELECT * FROM workflow_runs
-WHERE created_at BETWEEN $1 AND $2
+WHERE created_at BETWEEN sqlc.arg(start_date) AND sqlc.arg(end_date)
 ORDER BY created_at DESC;

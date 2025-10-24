@@ -5,6 +5,7 @@ import fs from "fs";
 import http from "http";
 import logger from "./logger.js";
 import { registerWebhookHandlers } from "./webhooks/index.js";
+import { testConnection, closeClient } from "./database/client.js";
 
 // Load environment variables
 dotenv.config();
@@ -110,11 +111,32 @@ export async function initializeServer(): Promise<http.Server> {
   // Validate environment
   const { appId, webhookSecret, privateKey } = validateEnvironment();
 
+  // Test database connection
+  await testConnection();
+
   // Create app
   const app = createApp(appId, privateKey, webhookSecret);
 
   // Start server
   const server = startServer(app);
+
+  // Graceful shutdown
+  const shutdown = async (signal: string) => {
+    logger.info(`${signal} received, shutting down gracefully...`);
+
+    // Close HTTP server
+    server.close(() => {
+      logger.info('HTTP server closed');
+    });
+
+    // Close database connection
+    await closeClient();
+
+    process.exit(0);
+  };
+
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
 
   return server;
 }
