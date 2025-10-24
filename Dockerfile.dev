@@ -4,6 +4,11 @@ FROM node:20-alpine AS development
 # Install pnpm
 RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
 
+# Install goose v3.22.1 for database migrations
+RUN apk add --no-cache curl && \
+    curl -fsSL https://raw.githubusercontent.com/pressly/goose/master/install.sh | GOOSE_VERSION=v3.22.1 sh && \
+    apk del curl
+
 # Set working directory
 WORKDIR /app
 

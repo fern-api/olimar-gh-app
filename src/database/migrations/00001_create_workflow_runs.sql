@@ -18,6 +18,7 @@ CREATE INDEX idx_workflow_runs_org_repo ON workflow_runs(org, repo);
 CREATE INDEX idx_workflow_runs_created_at ON workflow_runs(created_at DESC);
 
 -- Create updated_at trigger function
+-- +goose StatementBegin
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -25,6 +26,7 @@ BEGIN
     RETURN NEW;
 END;
 $$ language 'plpgsql';
+-- +goose StatementEnd
 
 -- Create trigger to automatically update updated_at
 CREATE TRIGGER update_workflow_runs_updated_at

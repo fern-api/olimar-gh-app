@@ -25,6 +25,11 @@ FROM node:20-alpine
 # Install pnpm
 RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
 
+# Install goose v3.22.1 for database migrations
+RUN apk add --no-cache curl && \
+    curl -fsSL https://raw.githubusercontent.com/pressly/goose/master/install.sh | GOOSE_VERSION=v3.22.1 sh && \
+    apk del curl
+
 # Set working directory
 WORKDIR /app
 
@@ -36,6 +41,13 @@ RUN pnpm install --frozen-lockfile --prod
 
 # Copy built files from builder stage
 COPY --from=builder /app/dist ./dist
+
+# Copy scripts and migrations for running migrations in cloud environment
+COPY scripts ./scripts
+COPY src/database/migrations ./src/database/migrations
+
+# Make scripts executable
+RUN chmod +x scripts/*.sh
 
 # Create a non-root user
 RUN addgroup -g 1001 -S nodejs && \

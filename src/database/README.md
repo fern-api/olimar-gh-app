@@ -8,22 +8,27 @@ This directory contains the database configuration, migrations, and queries for 
 src/database/
 ├── migrations/          # Goose migration files
 ├── queries/            # SQL queries for sqlc code generation
-├── gen-queries/        # Generated TypeScript code from sqlc
+├── generated-queries/  # Generated TypeScript code from sqlc
 └── sqlc.yml           # sqlc configuration
 ```
 
 ## Prerequisites
 
-- [Goose](https://github.com/pressly/goose) - Database migration tool
-- PostgreSQL 16+
+- Docker (required for running migrations and generating code)
+- PostgreSQL 16+ (provided via Docker Compose)
 
-Install Goose:
+**Optional - Install Goose locally for development:**
 ```bash
 # macOS
 brew install goose
 
+# Or install a specific version (recommended for consistency)
+curl -fsSL https://raw.githubusercontent.com/pressly/goose/master/install.sh | GOOSE_VERSION=v3.22.1 sh
+
 # Or download from https://github.com/pressly/goose/releases
 ```
+
+Note: Goose v3.22.1 and sqlc v1.27.0 are already installed in the Docker containers, so local installation is optional.
 
 ## Environment Variables
 
@@ -39,8 +44,12 @@ DB_NAME=olimar
 
 ## Migration Commands
 
+### Running Migrations Locally
+
 ### Run migrations (apply all pending)
 ```bash
+pnpm run db:migrate:up
+# Or use the shorthand:
 pnpm run db:migrate
 ```
 
@@ -59,10 +68,48 @@ pnpm run db:migrate:status
 pnpm run db:migrate:reset
 ```
 
-### Create a new migration
+### Create a new migration file
 ```bash
 pnpm run db:migrate:create migration_name sql
 ```
+
+### Running Migrations from Docker Container
+
+If you prefer to run migrations from inside the Docker container:
+
+**Option 1: Using docker-compose exec (Recommended)**
+```bash
+# Run migrations
+docker-compose exec app pnpm run db:migrate:up
+
+# Check status
+docker-compose exec app pnpm run db:migrate:status
+
+# Rollback
+docker-compose exec app pnpm run db:migrate:down
+```
+
+**Option 2: Using docker exec**
+```bash
+# Run migrations
+docker exec olimar-gh-app-dev pnpm run db:migrate:up
+
+# Check status
+docker exec olimar-gh-app-dev pnpm run db:migrate:status
+```
+
+**Option 3: Shell into the container**
+```bash
+# Enter the container
+docker exec -it olimar-gh-app-dev sh
+
+# Run commands inside
+pnpm run db:migrate:up
+pnpm run db:migrate:status
+exit
+```
+
+**Note:** When running in Docker, environment variables are automatically configured via docker-compose.yml (DB_HOST=postgres, etc.)
 
 ## Docker Setup
 
@@ -116,23 +163,28 @@ DROP TABLE IF EXISTS example;
 
 ## Using sqlc
 
-sqlc generates type-safe TypeScript code from SQL queries.
+sqlc generates type-safe TypeScript code from SQL queries. This project uses Docker to run sqlc (v1.27.0), ensuring all developers use the same version.
 
 ### Write queries
 Add `.sql` files to `src/database/queries/` directory.
 
 ### Generate TypeScript code
 ```bash
-sqlc generate -f src/database/sqlc.yml
+pnpm run db:generate
 ```
 
-Generated code will be in `src/database/gen-queries/`.
+This runs sqlc v1.27.0 in a Docker container - no local installation needed! Generated code will be in `src/database/generated-queries/`.
+
+**Important:** Always commit the generated TypeScript code to source control!
+
+**Note:** sqlc analyzes your schema from migration files - no database connection required!
 
 ## Workflow
 
-1. **Create a migration**: `pnpm run db:migrate:create add_new_table sql`
-2. **Edit the migration**: Add your SQL in the generated file
-3. **Run the migration**: `pnpm run db:migrate`
+1. **Create a migration file**: `pnpm run db:migrate:create add_new_table sql`
+2. **Edit the migration**: Add your SQL in the generated file (include `-- +goose StatementBegin/End` for functions)
+3. **Run the migration**: `pnpm run db:migrate:up`
 4. **Write queries**: Add SQL queries in `queries/` directory
-5. **Generate code**: Run `sqlc generate`
-6. **Use in app**: Import generated code from `gen-queries/`
+5. **Generate code**: `pnpm run db:generate`
+6. **Commit generated code**: Git commit both queries and `generated-queries/`
+7. **Use in app**: Import generated code from `generated-queries/`

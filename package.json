@@ -17,13 +17,15 @@
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
     "docker:restart": "docker-compose restart",
-    "db:migrate": "./scripts/db-migrate.sh up",
-    "db:migrate:down": "./scripts/db-migrate.sh down",
-    "db:migrate:status": "./scripts/db-migrate.sh status",
-    "db:migrate:reset": "./scripts/db-migrate.sh reset",
-    "db:migrate:create": "./scripts/db-create.sh",
+    "db:generate": "docker run --rm -v $(pwd):/src -w /src sqlc/sqlc:1.27.0 generate -f src/database/sqlc.yml",
+    "db:migrate:up": "./scripts/db-run-migrations.sh up",
+    "db:migrate:down": "./scripts/db-run-migrations.sh down",
+    "db:migrate:status": "./scripts/db-run-migrations.sh status",
+    "db:migrate:reset": "./scripts/db-run-migrations.sh reset",
+    "db:migrate:create": "./scripts/db-create-migration.sh",
+    "db:migrate": "./scripts/db-run-migrations.sh up",
     "db:psql": "docker-compose exec postgres psql -U ${DB_USER:-postgres} -d ${DB_NAME:-olimar}",
-    "db:reset": "docker-compose down -v && docker-compose up -d postgres && sleep 5 && pnpm run db:migrate"
+    "db:reset": "docker-compose down -v && docker-compose up -d postgres && sleep 5 && pnpm run db:migrate:up"
   },
   "keywords": [
     "github",

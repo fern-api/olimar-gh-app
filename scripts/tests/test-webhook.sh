@@ -15,11 +15,14 @@ fi
 # Define the webhook payload
 PAYLOAD='{
   "ref": "refs/heads/main",
+  "after": "abc123def456",
+  "before": "def456abc123",
   "repository": {
     "name": "test-repo",
     "owner": {
       "login": "testuser"
-    }
+    },
+    "full_name": "testuser/test-repo"
   },
   "head_commit": {
     "id": "abc123",
@@ -30,6 +33,15 @@ PAYLOAD='{
     "message": "Test commit",
     "timestamp": "2025-10-22T14:57:40Z",
     "url": "https://github.com/testuser/test-repo/commit/abc123"
+  },
+  "installation": {
+    "id": 12345678,
+    "node_id": "MDIzOkluc3RhbGxhdGlvbjEyMzQ1Njc4"
+  },
+  "sender": {
+    "login": "testuser",
+    "id": 1,
+    "type": "User"
   }
 }'
 

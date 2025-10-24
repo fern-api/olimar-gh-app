@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     container_name: olimar-postgres
     environment:
       - POSTGRES_USER=${DB_USER:-postgres}
@@ -29,17 +27,8 @@ services:
     ports:
       - "${PORT:-3000}:3000"
     environment:
-      - APP_ID=${APP_ID}
-      - WEBHOOK_SECRET=${WEBHOOK_SECRET}
-      - PRIVATE_KEY=${PRIVATE_KEY}
-      - PORT=${PORT:-3000}
-      - LOG_LEVEL=${LOG_LEVEL:-debug}
       - NODE_ENV=development
-      - DB_HOST=${DB_HOST:-postgres}
-      - DB_PORT=${DB_PORT:-5432}
-      - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD:-postgres}
-      - DB_NAME=${DB_NAME:-olimar}
+      - DB_HOST=postgres  # Override for container-to-container communication
     env_file:
       - .env
     volumes:

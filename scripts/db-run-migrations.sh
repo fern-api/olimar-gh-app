@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/bin/sh
 
-# Database migration script using Goose
-# Loads environment variables and runs goose migrations
+# Run database migrations using Goose
+# Loads environment variables and executes migrations against the database
 
 set -e
 

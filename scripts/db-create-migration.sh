@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/bin/sh
 
 # Create a new migration file using Goose
-# Usage: ./scripts/db-create.sh migration_name [sql|go]
+# Usage: ./scripts/db-create-migration.sh migration_name [sql|go]
 
 set -e
 

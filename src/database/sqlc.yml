@@ -9,13 +9,12 @@ sql:
       queries: "queries"
       schema: "migrations"
       codegen:
-          - out: gen-queries
+          - out: generated-queries
             plugin: ts
             options:
                 runtime: node
                 driver: pg
-      database:
-          uri: "postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
+      # No database connection needed - sqlc analyzes schema from migration files
       analyzer:
           database: false
       rules:
