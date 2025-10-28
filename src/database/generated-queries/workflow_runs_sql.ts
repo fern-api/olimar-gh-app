@@ -34,7 +34,10 @@ export interface CreateWorkflowRunRow {
     conclusion: string | null;
 }
 
-export async function createWorkflowRun(client: Client, args: CreateWorkflowRunArgs): Promise<CreateWorkflowRunRow | null> {
+export async function createWorkflowRun(
+    client: Client,
+    args: CreateWorkflowRunArgs
+): Promise<CreateWorkflowRunRow | null> {
     const result = await client.query({
         text: createWorkflowRunQuery,
         values: [args.workflowId, args.workflowUrl, args.org, args.repo],
@@ -122,7 +125,10 @@ export interface GetWorkflowRunByWorkflowIdRow {
     conclusion: string | null;
 }
 
-export async function getWorkflowRunByWorkflowId(client: Client, args: GetWorkflowRunByWorkflowIdArgs): Promise<GetWorkflowRunByWorkflowIdRow | null> {
+export async function getWorkflowRunByWorkflowId(
+    client: Client,
+    args: GetWorkflowRunByWorkflowIdArgs
+): Promise<GetWorkflowRunByWorkflowIdRow | null> {
     const result = await client.query({
         text: getWorkflowRunByWorkflowIdQuery,
         values: [args.workflowId],
@@ -173,7 +179,7 @@ export async function listWorkflowRuns(client: Client, args: ListWorkflowRunsArg
         values: [args.limit, args.offset],
         rowMode: "array"
     });
-    return result.rows.map(row => {
+    return result.rows.map((row) => {
         return {
             id: row[0],
             workflowId: row[1],
@@ -213,13 +219,16 @@ export interface ListWorkflowRunsByRepoRow {
     conclusion: string | null;
 }
 
-export async function listWorkflowRunsByRepo(client: Client, args: ListWorkflowRunsByRepoArgs): Promise<ListWorkflowRunsByRepoRow[]> {
+export async function listWorkflowRunsByRepo(
+    client: Client,
+    args: ListWorkflowRunsByRepoArgs
+): Promise<ListWorkflowRunsByRepoRow[]> {
     const result = await client.query({
         text: listWorkflowRunsByRepoQuery,
         values: [args.org, args.repo, args.limit, args.offset],
         rowMode: "array"
     });
-    return result.rows.map(row => {
+    return result.rows.map((row) => {
         return {
             id: row[0],
             workflowId: row[1],
@@ -258,13 +267,16 @@ export interface ListWorkflowRunsByOrgRow {
     conclusion: string | null;
 }
 
-export async function listWorkflowRunsByOrg(client: Client, args: ListWorkflowRunsByOrgArgs): Promise<ListWorkflowRunsByOrgRow[]> {
+export async function listWorkflowRunsByOrg(
+    client: Client,
+    args: ListWorkflowRunsByOrgArgs
+): Promise<ListWorkflowRunsByOrgRow[]> {
     const result = await client.query({
         text: listWorkflowRunsByOrgQuery,
         values: [args.org, args.limit, args.offset],
         rowMode: "array"
     });
-    return result.rows.map(row => {
+    return result.rows.map((row) => {
         return {
             id: row[0],
             workflowId: row[1],
@@ -303,7 +315,10 @@ export interface UpdateWorkflowRunRow {
     conclusion: string | null;
 }
 
-export async function updateWorkflowRun(client: Client, args: UpdateWorkflowRunArgs): Promise<UpdateWorkflowRunRow | null> {
+export async function updateWorkflowRun(
+    client: Client,
+    args: UpdateWorkflowRunArgs
+): Promise<UpdateWorkflowRunRow | null> {
     const result = await client.query({
         text: updateWorkflowRunQuery,
         values: [args.id, args.workflowUrl],
@@ -352,7 +367,10 @@ export interface UpdateWorkflowRunStatusRow {
     conclusion: string | null;
 }
 
-export async function updateWorkflowRunStatus(client: Client, args: UpdateWorkflowRunStatusArgs): Promise<UpdateWorkflowRunStatusRow | null> {
+export async function updateWorkflowRunStatus(
+    client: Client,
+    args: UpdateWorkflowRunStatusArgs
+): Promise<UpdateWorkflowRunStatusRow | null> {
     const result = await client.query({
         text: updateWorkflowRunStatusQuery,
         values: [args.workflowId, args.status, args.conclusion],
@@ -443,7 +461,10 @@ export interface CountWorkflowRunsByRepoRow {
     count: string;
 }
 
-export async function countWorkflowRunsByRepo(client: Client, args: CountWorkflowRunsByRepoArgs): Promise<CountWorkflowRunsByRepoRow | null> {
+export async function countWorkflowRunsByRepo(
+    client: Client,
+    args: CountWorkflowRunsByRepoArgs
+): Promise<CountWorkflowRunsByRepoRow | null> {
     const result = await client.query({
         text: countWorkflowRunsByRepoQuery,
         values: [args.org, args.repo],
@@ -479,13 +500,16 @@ export interface GetRecentWorkflowRunsRow {
     conclusion: string | null;
 }
 
-export async function getRecentWorkflowRuns(client: Client, args: GetRecentWorkflowRunsArgs): Promise<GetRecentWorkflowRunsRow[]> {
+export async function getRecentWorkflowRuns(
+    client: Client,
+    args: GetRecentWorkflowRunsArgs
+): Promise<GetRecentWorkflowRunsRow[]> {
     const result = await client.query({
         text: getRecentWorkflowRunsQuery,
         values: [args.createdAt],
         rowMode: "array"
     });
-    return result.rows.map(row => {
+    return result.rows.map((row) => {
         return {
             id: row[0],
             workflowId: row[1],
@@ -522,13 +546,16 @@ export interface GetWorkflowRunsByDateRangeRow {
     conclusion: string | null;
 }
 
-export async function getWorkflowRunsByDateRange(client: Client, args: GetWorkflowRunsByDateRangeArgs): Promise<GetWorkflowRunsByDateRangeRow[]> {
+export async function getWorkflowRunsByDateRange(
+    client: Client,
+    args: GetWorkflowRunsByDateRangeArgs
+): Promise<GetWorkflowRunsByDateRangeRow[]> {
     const result = await client.query({
         text: getWorkflowRunsByDateRangeQuery,
         values: [args.startDate, args.endDate],
         rowMode: "array"
     });
-    return result.rows.map(row => {
+    return result.rows.map((row) => {
         return {
             id: row[0],
             workflowId: row[1],
@@ -542,4 +569,3 @@ export async function getWorkflowRunsByDateRange(client: Client, args: GetWorkfl
         };
     });
 }
-

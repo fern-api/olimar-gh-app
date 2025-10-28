@@ -12,6 +12,7 @@
     "watch": "tsc --watch",
     "tunnel": "node scripts/tests/tunnel.js",
     "lint": "pnpm biome lint",
+    "format": "pnpm biome format --fix",
     "docker:build": "docker build -t olimar-gh-app:latest .",
     "docker:run": "docker run -p 3000:3000 --env-file .env olimar-gh-app:latest",
     "docker:up": "docker-compose up -d",
@@ -28,11 +29,7 @@
     "db:psql": "docker-compose exec postgres psql -U ${DB_USER:-postgres} -d ${DB_NAME:-autopilot}",
     "db:reset": "docker-compose down -v && docker-compose up -d postgres && sleep 5 && pnpm run db:migrate:up"
   },
-  "keywords": [
-    "github",
-    "webhook",
-    "octokit"
-  ],
+  "keywords": ["github", "webhook", "octokit"],
   "author": "",
   "license": "MIT",
   "dependencies": {
