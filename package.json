@@ -4,7 +4,7 @@
   "description": "Ferns Autopilot service for pushing updates to customers and tracking generation workflows",
   "type": "module",
   "main": "dist/index.js",
-  "packageManager": "pnpm@9.0.0",
+  "packageManager": "pnpm@9.4.0",
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
