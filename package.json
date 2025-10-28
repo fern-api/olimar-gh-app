@@ -11,6 +11,7 @@
     "dev": "tsx src/index.ts",
     "watch": "tsc --watch",
     "tunnel": "node scripts/tests/tunnel.js",
+    "lint": "pnpm biome lint",
     "docker:build": "docker build -t olimar-gh-app:latest .",
     "docker:run": "docker run -p 3000:3000 --env-file .env olimar-gh-app:latest",
     "docker:up": "docker-compose up -d",
@@ -45,6 +46,7 @@
     "winston": "^3.18.3"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.3.1",
     "@types/express": "^4.17.21",
     "@types/node": "^20.14.0",
     "@types/pg": "^8.15.5",
