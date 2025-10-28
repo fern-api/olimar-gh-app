@@ -1,5 +1,5 @@
-import { initializeServer } from "./server.js";
 import logger from "./logger.js";
+import { initializeServer } from "./server.js";
 
 // Start the server
 initializeServer().catch((error) => {

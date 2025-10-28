@@ -1,11 +1,11 @@
-import dotenv from "dotenv";
-import { App } from "octokit";
 import { createNodeMiddleware } from "@octokit/webhooks";
+import dotenv from "dotenv";
 import fs from "fs";
 import http from "http";
+import { App } from "octokit";
+import { closeClient, testConnection } from "./database/client.js";
 import logger from "./logger.js";
 import { registerWebhookHandlers } from "./webhooks/index.js";
-import { testConnection, closeClient } from "./database/client.js";
 
 // Load environment variables
 dotenv.config();

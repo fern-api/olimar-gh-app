@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import dotenv from "dotenv";
 import { spawn } from "child_process";
+import dotenv from "dotenv";
 
 // Load environment variables from .env file
 dotenv.config();

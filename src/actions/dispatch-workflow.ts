@@ -1,5 +1,5 @@
 import logger from "../logger.js";
-import { BaseActionParams, WorkflowInfo, ActionResult } from "./types.js";
+import { ActionResult, BaseActionParams, WorkflowInfo } from "./types.js";
 
 /**
  * Parameters for dispatching a workflow
