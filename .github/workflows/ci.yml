@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  compile:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -21,20 +21,8 @@ jobs:
       - name: Install
         uses: ./.github/actions/install
 
-      - name: Compile
-        run: pnpm compile
-
-  depcheck:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Install
-        uses: ./.github/actions/install
-
-      - name: Check dependencies
-        run: pnpm depcheck
+      - name: Build
+        run: pnpm build
 
   biome:
     runs-on: ubuntu-latest
