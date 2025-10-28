@@ -10,12 +10,12 @@ runs:
       with:
         version: 9.4.0
 
+    - name: 📥 Install dependencies
+      shell: bash
+      run: pnpm install
+
     - name: ⎔ Setup Node.js
       uses: actions/setup-node@v6
       with:
         node-version: 22
         cache: pnpm
-
-    - name: 📥 Install dependencies
-      shell: bash
-      run: pnpm install
